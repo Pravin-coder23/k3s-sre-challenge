@@ -1,0 +1,38 @@
+---
+- name: Install k3s on localhost
+  hosts: localhost
+  connection: local
+  become: yes
+
+  tasks:
+
+    - name: Update apt packages
+      apt:
+        update_cache: yes
+
+    - name: Install required dependencies
+      apt:
+        name:
+          - curl
+          - ca-certificates
+        state: present
+
+    - name: Install latest stable k3s
+      shell: |
+        curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Wait for k3s service to start
+      systemd:
+        name: k3s
+        state: started
+        enabled: yes
+
+    - name: Verify Kubernetes node
+      command: kubectl get nodes
+      register: kubernetes_nodes
+
+    - name: Display Kubernetes node status
+      debug:
+        var: kubernetes_nodes.stdout

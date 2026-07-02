@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: yes
+
+  tasks:
+    - name: Check whoami
+      command: whoami
+      register: result
+
+    - debug:
+        var: result.stdout
